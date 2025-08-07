@@ -1,0 +1,36 @@
+[
+  {
+    "session_id": "sample-session-001",
+    "candidate_info": {
+      "name": "Alice Johnson",
+      "email": "alice.johnson@email.com",
+      "phone": "555-0101",
+      "experience_years": 4,
+      "tech_stack": "Python, Django, React, PostgreSQL, AWS"
+    },
+    "interview_date": "2024-01-15T10:30:00",
+    "duration_minutes": 25,
+    "status": "completed",
+    "technical_questions_count": 4,
+    "responses_count": 4,
+    "completion_percentage": 100.0,
+    "notes": "Mid-level candidate; Python experience; Cloud experience; Completed all technical questions"
+  },
+  {
+    "session_id": "sample-session-002", 
+    "candidate_info": {
+      "name": "Bob Smith",
+      "email": "bob.smith@email.com",
+      "phone": "555-0102",
+      "experience_years": 1,
+      "tech_stack": "JavaScript, Node.js, MongoDB"
+    },
+    "interview_date": "2024-01-16T14:15:00",
+    "duration_minutes": 20,
+    "status": "completed",
+    "technical_questions_count": 3,
+    "responses_count": 3,
+    "completion_percentage": 100.0,
+    "notes": "Junior level candidate; JavaScript experience; Completed all technical questions"
+  }
+]
