@@ -561,7 +561,7 @@ from utils.logger import logger
 logger.debug("Debug message", context={"key": "value"})
 ```
 ## DEMO 
-[<iframe src="https://drive.google.com/file/d/1rEAR9pp2pGoVasUALwsI5HEpcZxTdR0F/view?usp=sharing" width="640" height="480" allow="autoplay"></iframe>](https://drive.google.com/file/d/1rEAR9pp2pGoVasUALwsI5HEpcZxTdR0F/view?usp=sharing)
+[<iframe src="https://drive.google.com/file/d/1rEAR9pp2pGoVasUALwsI5HEpcZxTdR0F/view?usp=sharing" width="640" height="480" allow="autoplay"></iframe>]
 
 ## 📈 Roadmap
 
