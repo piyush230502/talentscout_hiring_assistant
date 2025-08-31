@@ -10,6 +10,8 @@ import streamlit as st
 from config.settings import settings
 from utils.logger import logger, log_error
 from utils.helpers import generate_session_id
+# Avoid importing evaluation service at module import time to prevent circular imports.
+# The evaluation service will be imported lazily inside the methods that need it.
 
 class LLMService:
     """Service for handling Language Model interactions via OpenRouter"""
@@ -44,6 +46,14 @@ class LLMService:
     def is_available(self) -> bool:
         """Check if LLM service is available"""
         return self.client is not None and settings.validate_api_key()
+
+    def _parse_json_response(self, response: str) -> Dict[str, Any]:
+        """Parse JSON response from LLM"""
+        try:
+            return json.loads(response)
+        except json.JSONDecodeError:
+            logger.warning("Failed to parse JSON response from LLM.")
+            return {}
 
     def generate_response(
         self,
@@ -137,28 +147,33 @@ class LLMService:
             )
 
             # Parse JSON response
-            try:
-                questions_data = json.loads(response)
-                questions = questions_data.get("questions", [])
+            questions_data = self._parse_json_response(response)
+            questions = questions_data.get("questions", [])
 
-                # Validate and clean questions
-                validated_questions = []
-                for q in questions:
-                    if self._validate_question(q):
-                        validated_questions.append(q)
+            # Validate and clean questions
+            validated_questions = []
+            for q in questions:
+                if self._validate_question(q):
+                    validated_questions.append(q)
+            
+            # Evaluate questions for hallucinations and bias
+            # Import the evaluation service lazily to avoid circular imports
+            from services.check_hallucinationBias import evaluation_service
 
-                logger.info(
-                    "Technical questions generated",
-                    session_id=self.session_id,
-                    question_count=len(validated_questions),
-                    experience_years=experience_years
-                )
+            evaluated_questions = evaluation_service.evaluate_questions(
+                validated_questions, tech_stack, experience_years
+            )
 
-                return validated_questions
+            logger.info(
+                "Technical questions generated and evaluated",
+                session_id=self.session_id,
+                initial_question_count=len(questions),
+                validated_question_count=len(validated_questions),
+                evaluated_question_count=len(evaluated_questions),
+                experience_years=experience_years
+            )
 
-            except json.JSONDecodeError:
-                logger.warning("Failed to parse questions JSON, using fallback")
-                return self._get_fallback_questions(experience_years)
+            return evaluated_questions
 
         except Exception as e:
             log_error(logger, e, self.session_id, {
