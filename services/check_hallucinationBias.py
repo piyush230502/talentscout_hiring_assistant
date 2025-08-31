@@ -2,8 +2,11 @@
 Evaluation service for checking LLM outputs for hallucinations and bias.
 """
 from typing import List, Dict, Any
-from services.llm_service import llm_service
 from utils.logger import logger
+
+
+# Do not import llm_service at module import time to avoid circular import issues.
+# The LLM service instance will be resolved lazily inside the EvaluationService.
 
 class EvaluationService:
     """
@@ -14,12 +17,27 @@ class EvaluationService:
         """
         Initializes the EvaluationService.
         """
-        self.llm_service = llm_service
+        # Lazily import the LLM service to prevent circular import during module import
+        try:
+            from services.llm_service import llm_service
+            self.llm_service = llm_service
+        except Exception:
+            # If import fails at module import time (e.g., during tests), set to None.
+            self.llm_service = None
 
     def check_hallucination(self, questions: List[Dict[str, Any]], tech_stack: str, experience_years: int) -> List[Dict[str, Any]]:
         """
         Checks for hallucinated or irrelevant questions.
         """
+        # Ensure llm_service is available (lazy import if needed)
+        if self.llm_service is None:
+            try:
+                from services.llm_service import llm_service
+                self.llm_service = llm_service
+            except Exception:
+                logger.warning("LLM service not available (import failed), skipping hallucination check.")
+                return questions
+
         if not self.llm_service.is_available():
             logger.warning("LLM service not available, skipping hallucination check.")
             return questions
@@ -57,6 +75,15 @@ class EvaluationService:
         """
         Checks for biased content in questions.
         """
+        # Ensure llm_service is available (lazy import if needed)
+        if self.llm_service is None:
+            try:
+                from services.llm_service import llm_service
+                self.llm_service = llm_service
+            except Exception:
+                logger.warning("LLM service not available (import failed), skipping bias check.")
+                return questions
+
         if not self.llm_service.is_available():
             logger.warning("LLM service not available, skipping bias check.")
             return questions
